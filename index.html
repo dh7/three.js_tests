@@ -1,0 +1,92 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <title>VR4ALL</title>
+  <meta charset=utf-8>
+
+  <link href='http://fonts.googleapis.com/css?family=Open+Sans:400,700|Roboto+Slab|Roboto:300,100' rel='stylesheet' type='text/css'>
+
+  <link rel="shortcut icon" href="/favicon.ico" type="image/x-icon">
+  <link rel="icon" href="/favicon.ico" type="image/x-icon">
+
+  <meta name="description" content="this page is for testing purpose only">
+  <meta name="keywords" content="Three.js testing page">
+  <meta name="viewport" content="width=device-width, height=device-height, initial-scale=1, min-scale=1">
+
+  <style>canvas { width: 100%; height: 100% }</style>
+</head>
+<body>
+  <script src="https://rawgithub.com/mrdoob/three.js/master/build/three.js"></script>
+  <script>
+    var scene = new THREE.Scene();
+    var camera = new THREE.PerspectiveCamera(75, window.innerWidth/window.innerHeight, 0.1, 1000);
+
+    var renderer = new THREE.WebGLRenderer( {antialias:true} );
+    renderer.setSize(window.innerWidth, window.innerHeight);
+    renderer.shadowMapEnabled = true;
+    renderer.shadowMapType = THREE.PCFSoftShadowMap;
+    document.body.appendChild(renderer.domElement);
+
+    // White directional light at half intensity shining from the top.
+    var directionalLight = new THREE.DirectionalLight( 0xffffff, 0.5 );
+    directionalLight.position.set( 0, 1, 0 );
+    //scene.add( directionalLight );
+
+    var light = new THREE.AmbientLight( 0x404040 ); // soft white light
+    scene.add( light );
+
+    // spotlight #1 -- yellow, dark shadow
+    var spotlight = new THREE.SpotLight(0x404040);
+    spotlight.position.set(-60,150,-30);
+    //spotlight.shadowCameraVisible = true;
+    spotlight.shadowDarkness = 0.75;
+    spotlight.intensity = 2;
+    // must enable shadow casting ability for the light
+    spotlight.castShadow = true;
+    spotlight.shadowMapWidth = 1024; // default is 512
+    spotlight.shadowMapHeight = 1024; // default is 512
+    scene.add(spotlight);
+
+    // spotlight #2 -- red, light shadow
+    var spotlight2 = new THREE.SpotLight(0x404040);
+    spotlight2.position.set(60,150,-60);
+    //spotlight2.shadowCameraVisible = true;
+    spotlight2.shadowDarkness = 0.70;
+    spotlight2.intensity = 0.5;
+    spotlight2.castShadow = true;
+    spotlight2.shadowMapWidth = 1024; // default is 512
+    spotlight2.shadowMapHeight = 1024; // default is 512
+    scene.add(spotlight2);
+
+
+    var geometry = new THREE.CubeGeometry(2,2,2);
+    var material = new THREE.MeshLambertMaterial( { color: 0xffffff } );
+    var cube = new THREE.Mesh(geometry, material);
+    cube.castShadow = true;
+    scene.add(cube);
+
+
+    var geometry2 = new THREE.CubeGeometry(10,0.1,10);
+    var material2 = new THREE.MeshLambertMaterial( { color: 0xffffff } );
+    var floor = new THREE.Mesh(geometry2, material2);
+    floor.receiveShadow = true;
+    scene.add(floor);
+    floor.position.y = -2;
+
+
+    camera.position.z = 5;
+
+    var render = function () {
+      requestAnimationFrame(render);
+
+      cube.rotation.x += 0.02;
+      cube.rotation.y += 0.01;
+
+      renderer.render(scene, camera);
+    };
+
+    render();
+  </script>
+</body>
+</html>
