@@ -2,7 +2,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <title>VR4ALL</title>
+  <title>Three.js Tests</title>
   <meta charset=utf-8>
 
   <link href='http://fonts.googleapis.com/css?family=Open+Sans:400,700|Roboto+Slab|Roboto:300,100' rel='stylesheet' type='text/css'>
@@ -19,70 +19,151 @@
 <body>
   <script src="https://rawgithub.com/mrdoob/three.js/master/build/three.js"></script>
   <script>
+    function Cube(object, x, y, z, size) {
+      this.geometry = new THREE.CubeGeometry(size, size, size);
+      this.material = new THREE.MeshLambertMaterial( { color: 0xffffff } );
+      this.cube = new THREE.Mesh(this.geometry, this.material);
+      //this.cube.castShadow = true;
+      //this.receiveShadow = true;
+      this.node = new THREE.Object3D();
+      this.node.add(this.cube);
+      this.node.position.x = x;
+      this.node.position.y = y;
+      this.node.position.z = z;
+      object.add(this.node);
+    }
+    Cube.prototype.add = function(object){
+        this.node.add(object);
+    }
+    function Sphere(object, x, y, z, size) {
+      this.geometry = new THREE.SphereGeometry(size, 10, 10);
+      this.material = new THREE.MeshLambertMaterial( { color: 0xffffff } );
+      this.cube = new THREE.Mesh(this.geometry, this.material);
+      //this.cube.castShadow = true;
+      //this.receiveShadow = true;
+      this.node = new THREE.Object3D();
+      this.node.add(this.cube);
+      this.node.position.x = x;
+      this.node.position.y = y;
+      this.node.position.z = z;
+      object.add(this.node);
+    }
+    Sphere.prototype.add = function(object){
+        this.node.add(object);
+    }
+    function Tentacle(object, x, y, z, scale) {
+      this.object_lists = new Array();
+      var sub_cube = cube;
+      for (var i=0; i < 30; i=i+1) {
+        sub_cube = new Sphere(sub_cube, x, y, z, 1);
+        sub_cube.node.scale = new THREE.Vector3( scale, scale, scale);
+        this.object_lists.push(sub_cube);
+      }
+    }
+    Tentacle.prototype.rotate = function(x, y, z){
+      this.object_lists.forEach(function(object) {
+        object.node.rotation.x = x;
+        object.node.rotation.y = y;
+        object.node.rotation.z = z;
+      }); 
+    }
+    Tentacle.prototype.scale = function(x, y, z){
+      this.object_lists.forEach(function(object) {
+        object.node.scale =  new THREE.Vector3( x, y, z );
+      }); 
+    }
+    function Random(max) {
+      this._seed = Math.random()/100;
+      this._max = max;
+      this._phase = 0;
+    }
+    Random.prototype.value = function() {
+      this._phase = this._phase + this._seed;
+      return this._max * Math.sin(this._phase);
+    }
+    // Set the scene and the renderer
     var scene = new THREE.Scene();
     var camera = new THREE.PerspectiveCamera(75, window.innerWidth/window.innerHeight, 0.1, 1000);
-
     var renderer = new THREE.WebGLRenderer( {antialias:true} );
     renderer.setSize(window.innerWidth, window.innerHeight);
-    renderer.shadowMapEnabled = true;
-    renderer.shadowMapType = THREE.PCFSoftShadowMap;
+    //renderer.shadowMapEnabled = true;
+    //renderer.shadowMapSoft = true;
+    //renderer.shadowMapType = THREE.PCFSoftShadowMap;
     document.body.appendChild(renderer.domElement);
-
-    // White directional light at half intensity shining from the top.
-    var directionalLight = new THREE.DirectionalLight( 0xffffff, 0.5 );
-    directionalLight.position.set( 0, 1, 0 );
-    //scene.add( directionalLight );
-
-    var light = new THREE.AmbientLight( 0x404040 ); // soft white light
+    // Set Ambiant light
+    var light = new THREE.AmbientLight( 0x303030 ); // soft white light
     scene.add( light );
-
-    // spotlight #1 -- yellow, dark shadow
+    // Set two spotlight
     var spotlight = new THREE.SpotLight(0x404040);
-    spotlight.position.set(-60,150,-30);
-    //spotlight.shadowCameraVisible = true;
-    spotlight.shadowDarkness = 0.75;
-    spotlight.intensity = 2;
-    // must enable shadow casting ability for the light
+    spotlight.position.set(30,50,30);
+    spotlight.shadowDarkness = 0.5;
+    spotlight.intensity = 1;
     spotlight.castShadow = true;
     spotlight.shadowMapWidth = 1024; // default is 512
     spotlight.shadowMapHeight = 1024; // default is 512
     scene.add(spotlight);
-
-    // spotlight #2 -- red, light shadow
     var spotlight2 = new THREE.SpotLight(0x404040);
-    spotlight2.position.set(60,150,-60);
-    //spotlight2.shadowCameraVisible = true;
-    spotlight2.shadowDarkness = 0.70;
-    spotlight2.intensity = 0.5;
+    spotlight2.position.set(-30,50,30);
+    spotlight2.shadowDarkness = 0.5;
+    spotlight2.intensity = 1;
     spotlight2.castShadow = true;
     spotlight2.shadowMapWidth = 1024; // default is 512
     spotlight2.shadowMapHeight = 1024; // default is 512
     scene.add(spotlight2);
-
-
-    var geometry = new THREE.CubeGeometry(2,2,2);
-    var material = new THREE.MeshLambertMaterial( { color: 0xffffff } );
-    var cube = new THREE.Mesh(geometry, material);
-    cube.castShadow = true;
-    scene.add(cube);
-
-
-    var geometry2 = new THREE.CubeGeometry(10,0.1,10);
-    var material2 = new THREE.MeshLambertMaterial( { color: 0xffffff } );
+    // set up the main object
+    var cube = new Cube(scene, 0, 0, 0, 1);
+    var tentacleUp = new Tentacle(cube, 0, 1, 0, 0.9);
+    var tentacleDown = new Tentacle(cube, 0, -1, 0, 0.8);
+    var tentacleRight = new Tentacle(cube, 1, 0, 0, 0.8);
+    var tentacleLeft = new Tentacle(cube, -1, 0, 0, 0.8);
+    var tentacleFront = new Tentacle(cube, 0, 0, 1, 0.8);
+    var tentacleBack = new Tentacle(cube, 0, 0, -1, 0.8);
+    /* don't set up the floor
+    var geometry2 = new THREE.CubeGeometry(40, 0.1, 40);
+    var material2 = new THREE.M eshLambertMaterial( { color: 0xffffff } );
     var floor = new THREE.Mesh(geometry2, material2);
     floor.receiveShadow = true;
     scene.add(floor);
-    floor.position.y = -2;
+    floor.position.y = -10;*/
 
+    camera.position.z = 10;
 
-    camera.position.z = 5;
+    var Rx =  new Random(0.5);
+    var Ry =  new Random(0.5);
+    var Rz =  new Random(0.5);
+    //var Sx =  new Random(0.2);
+    //var Sy =  new Random(0.2);
+    //var Sz =  new Random(0.2);
 
     var render = function () {
       requestAnimationFrame(render);
 
-      cube.rotation.x += 0.02;
-      cube.rotation.y += 0.01;
+      cube.node.rotation.x += 0.005;
+      cube.node.rotation.y += 0.007;
 
+      var rx = Rx.value();
+      var ry = Ry.value();
+      rz = Rz.value();
+      tentacleUp.rotate(rx,ry,rz);
+      tentacleDown.rotate(rx,ry,rz);
+      tentacleRight.rotate(rx,ry,rz);
+      tentacleLeft.rotate(rx,ry,rz);
+      tentacleFront.rotate(rx,ry,rz);
+      tentacleBack.rotate(rx,ry,rz);
+/* 
+      sx = Rx.value();
+      sy = Ry.value();
+      sz = Rz.value();
+      sx = sx*sx;
+      sy = sy*sy;
+      sz = sz*sz;
+      tentacleUp.scale(0.95-sx, 0.95-sy, 0.95-sz);
+      tentacleDown.scale(0.95-sx, 0.95-sy, 0.95-sz);
+      tentacleRight.scale(0.95-sx, 0.95-sy, 0.95-sz);
+      tentacleLeft.scale(0.95-sx, 0.95-sy, 0.95-sz);
+      tentacleFront.scale(0.95-sx, 0.95-sy, 0.95-sz);
+      tentacleBack.scale(0.95-sx, 0.95-sy, 0.95-sz);
+*/
       renderer.render(scene, camera);
     };
 
