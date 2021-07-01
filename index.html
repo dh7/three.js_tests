@@ -5,19 +5,12 @@
   <title>Three.js Tests</title>
   <meta charset=utf-8>
 
-  <link href='http://fonts.googleapis.com/css?family=Open+Sans:400,700|Roboto+Slab|Roboto:300,100' rel='stylesheet' type='text/css'>
-
-  <link rel="shortcut icon" href="/favicon.ico" type="image/x-icon">
-  <link rel="icon" href="/favicon.ico" type="image/x-icon">
-
   <meta name="description" content="this page is for testing purpose only">
   <meta name="keywords" content="Three.js testing page">
   <meta name="viewport" content="width=device-width, height=device-height, initial-scale=1, min-scale=1">
-
-  <style>canvas { width: 100%; height: 100% }</style>
 </head>
 <body>
-  <script src="https://rawgithub.com/mrdoob/three.js/master/build/three.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/100/three.min.js"></script>
   <script>
     function Cube(object, x, y, z, size) {
       this.geometry = new THREE.CubeGeometry(size, size, size);
@@ -118,13 +111,6 @@
     var tentacleLeft = new Tentacle(cube, -1, 0, 0, 0.8);
     var tentacleFront = new Tentacle(cube, 0, 0, 1, 0.8);
     var tentacleBack = new Tentacle(cube, 0, 0, -1, 0.8);
-    /* don't set up the floor
-    var geometry2 = new THREE.CubeGeometry(40, 0.1, 40);
-    var material2 = new THREE.M eshLambertMaterial( { color: 0xffffff } );
-    var floor = new THREE.Mesh(geometry2, material2);
-    floor.receiveShadow = true;
-    scene.add(floor);
-    floor.position.y = -10;*/
 
     camera.position.z = 10;
 
@@ -150,7 +136,7 @@
       tentacleLeft.rotate(rx,ry,rz);
       tentacleFront.rotate(rx,ry,rz);
       tentacleBack.rotate(rx,ry,rz);
-/* 
+ /*
       sx = Rx.value();
       sy = Ry.value();
       sz = Rz.value();
